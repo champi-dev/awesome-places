@@ -20,7 +20,14 @@ export default class App extends Component {
     if (this.state.placeName.trim() === '') return
 
     this.setState(prevState => ({
+      placeName: '',
       places: [...prevState.places, prevState.placeName]
+    }))
+  }
+
+  placeDeletedHandler = i => {
+    this.setState(prevState => ({
+      places: prevState.places.filter((place, placeIndex) => placeIndex !== i)
     }))
   }
 
@@ -33,7 +40,10 @@ export default class App extends Component {
           pressHandler={this.placeSubmitHandler}
         />
 
-        <PlaceList places={this.state.places} />
+        <PlaceList
+          places={this.state.places}
+          itemPressHandler={this.placeDeletedHandler}
+        />
       </View>
     )
   }

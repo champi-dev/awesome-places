@@ -8,7 +8,7 @@ const PlaceList = props => {
     <ListItem
       key={i}
       placeName={place}
-      pressHandler={() => alert(`Item pressed ${i}`)}
+      pressHandler={() => props.itemPressHandler(i)}
     />
   ))
 
