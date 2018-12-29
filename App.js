@@ -21,13 +21,16 @@ export default class App extends Component {
 
     this.setState(prevState => ({
       placeName: '',
-      places: [...prevState.places, prevState.placeName]
+      places: [
+        ...prevState.places,
+        { key: `${Math.random()}`, value: prevState.placeName }
+      ]
     }))
   }
 
-  placeDeletedHandler = i => {
+  placeDeletedHandler = key => {
     this.setState(prevState => ({
-      places: prevState.places.filter((place, placeIndex) => placeIndex !== i)
+      places: prevState.places.filter(place => place.key !== key)
     }))
   }
 
