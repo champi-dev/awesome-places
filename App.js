@@ -23,7 +23,14 @@ export default class App extends Component {
       placeName: '',
       places: [
         ...prevState.places,
-        { key: `${Math.random()}`, value: prevState.placeName }
+        {
+          key: `${Math.random()}`,
+          name: prevState.placeName,
+          image: {
+            uri:
+              'https://img1.10bestmedia.com/Images/Photos/352450/GettyImages-913753556_55_660x440.jpg'
+          }
+        }
       ]
     }))
   }
