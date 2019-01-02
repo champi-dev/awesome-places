@@ -17,6 +17,9 @@ class PlaceInput extends Component {
       return
     }
 
+    this.setState({
+      placeName: ''
+    })
     this.props.pressHandler(this.state.placeName)
   }
 

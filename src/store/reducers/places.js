@@ -15,7 +15,6 @@ const reducer = (state = initialState, action) => {
     case ADD_PLACE:
       return {
         ...state,
-        placeName: '',
         places: [
           ...state.places,
           {
