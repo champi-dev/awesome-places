@@ -5,7 +5,6 @@ const DefaultInput = props => (
   <TextInput
     {...props}
     style={[styles.input, props.style]}
-    placeholder="Your E-Mail Address"
     underlineColorAndroid="transparent"
   />
 )
