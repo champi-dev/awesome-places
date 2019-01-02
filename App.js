@@ -1,69 +1,22 @@
-import React, { Component } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { connect } from 'react-redux'
-import {
-  addPlace,
-  deletePlace,
-  selectPlace,
-  deselectPlace
-} from './src/store/actions/index'
+import { Navigation } from 'react-native-navigation'
 
-import PlaceInput from './src/components/PlaceInput/PlaceInput'
-import PlaceList from './src/components/PlaceList/PlaceList'
-import PlaceDetail from './src/components/PlaceDetail/PlaceDetail'
+import AuthScreen from './src/screens/Auth/Auth'
+import SharePlaceScreen from './src/screens/SharePlace/SharePlace'
+import FindPlaceScreen from './src/screens/FindPlace/FindPlace'
 
-class App extends Component {
-  placeAddedHandler = placeName => this.props.onAddPlace(placeName)
+Navigation.registerComponent('awesome-places.AuthScreen', () => AuthScreen)
+Navigation.registerComponent(
+  'awesome-places.SharePlaceScreen',
+  () => SharePlaceScreen
+)
+Navigation.registerComponent(
+  'awesome-places.FindPlaceScreen',
+  () => FindPlaceScreen
+)
 
-  placeDeletedHandler = () => this.props.onDeletePlace()
-
-  placeSelectedHandler = key => this.props.onSelectPlace(key)
-
-  modalClosedHandler = () => this.props.onDeselectPlace()
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <PlaceDetail
-          selectedPlace={this.props.selectedPlace}
-          onItemDeleted={this.placeDeletedHandler}
-          onModalClosed={this.modalClosedHandler}
-        />
-
-        <PlaceInput pressHandler={this.placeAddedHandler} />
-
-        <PlaceList
-          places={this.props.places}
-          itemPressHandler={this.placeSelectedHandler}
-        />
-      </View>
-    )
-  }
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-    paddingTop: 48
+Navigation.startSingleScreenApp({
+  screen: {
+    screen: 'awesome-places.AuthScreen',
+    title: 'Login'
   }
 })
-
-const mapStateToProps = state => ({
-  places: state.placesReducer.places,
-  selectedPlace: state.placesReducer.selectedPlace
-})
-
-const mapDispatchToProps = dispatch => ({
-  onAddPlace: name => dispatch(addPlace(name)),
-  onDeletePlace: () => dispatch(deletePlace()),
-  onSelectPlace: key => dispatch(selectPlace(key)),
-  onDeselectPlace: () => dispatch(deselectPlace())
-})
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(App)
