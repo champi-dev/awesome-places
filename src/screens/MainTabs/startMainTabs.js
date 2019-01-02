@@ -1,11 +1,14 @@
 import { Navigation } from 'react-native-navigation'
-import Icon from 'react-native-vector-icons/FontAwesome'
+import { Platform } from 'react-native'
+import Icon from 'react-native-vector-icons/Ionicons'
+
+const isAndroid = Platform.OS === 'android'
 
 const startTabs = async () => {
   const [mapIcon, shareIcon, barsIcon] = await Promise.all([
-    Icon.getImageSource('map', 30),
-    Icon.getImageSource('share', 30),
-    Icon.getImageSource('bars', 30)
+    Icon.getImageSource(isAndroid ? 'md-map' : 'ios-map', 30),
+    Icon.getImageSource(isAndroid ? 'md-share-alt' : 'ios-share', 30),
+    Icon.getImageSource(isAndroid ? 'md-menu' : 'ios-menu', 30)
   ])
 
   Navigation.startTabBasedApp({

@@ -4,10 +4,13 @@ import {
   Text,
   Dimensions,
   StyleSheet,
-  TouchableOpacity
+  TouchableOpacity,
+  Platform
 } from 'react-native'
 
-import Icon from 'react-native-vector-icons/FontAwesome'
+import Icon from 'react-native-vector-icons/Ionicons'
+
+const isAndroid = Platform.OS === 'android'
 
 class SideDrawer extends Component {
   render() {
@@ -21,7 +24,7 @@ class SideDrawer extends Component {
         <TouchableOpacity>
           <View style={styles.drawerItem}>
             <Icon
-              name="sign-out"
+              name={isAndroid ? 'md-log-out' : 'ios-log-out'}
               size={30}
               color="#aaa"
               style={styles.drawerItemIcon}
