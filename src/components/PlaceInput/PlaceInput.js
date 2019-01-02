@@ -20,7 +20,7 @@ class PlaceInput extends Component {
     this.setState({
       placeName: ''
     })
-    this.props.pressHandler(this.state.placeName)
+    this.props.placeAddedHandler(this.state.placeName)
   }
 
   render() {

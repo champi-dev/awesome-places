@@ -12,7 +12,7 @@ const PlaceList = props => {
         <ListItem
           placeName={info.item.name}
           placeImage={info.item.image}
-          pressHandler={() => props.itemPressHandler(info.item.key)}
+          pressHandler={() => props.onItemSelected(info.item.key)}
         />
       )}
     />
