@@ -44,6 +44,14 @@ const startTabs = async () => {
         }
       }
     ],
+    // for ios
+    tabsStyle: {
+      tabBarSelectedButtonColor: 'orange'
+    },
+    // for android
+    appStyle: {
+      tabBarSelectedButtonColor: 'orange'
+    },
     drawer: {
       left: {
         screen: 'awesome-places.SideDrawer'
