@@ -1,5 +1,13 @@
 import React, { Component } from 'react'
-import { View, StyleSheet, ImageBackground, Dimensions } from 'react-native'
+import {
+  View,
+  StyleSheet,
+  ImageBackground,
+  Dimensions,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback
+} from 'react-native'
 import { connect } from 'react-redux'
 
 import startMainTabs from '../MainTabs/startMainTabs'
@@ -160,54 +168,56 @@ class AuthScreen extends Component {
 
     return (
       <ImageBackground source={backgroundImg} style={styles.backgroundImage}>
-        <View style={styles.container}>
+        <KeyboardAvoidingView style={styles.container} behavior="padding">
           {headingText}
           <DefaultButton color="#29aaf4" onPress={this.switchAuthModeHandler}>
             Switch to {this.state.authMode === 'login' ? 'Sign Up' : 'Login'}
           </DefaultButton>
 
-          <View style={styles.inputContainer}>
-            <DefaultInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="email-address"
-              placeholder="Your E-Mail Address"
-              value={this.state.controls.email.value}
-              onChangeText={val => this.updateInputState('email', val)}
-              valid={this.state.controls.email.valid}
-              touched={this.state.controls.email.touched}
-              style={styles.input}
-            />
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.inputContainer}>
+              <DefaultInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                placeholder="Your E-Mail Address"
+                value={this.state.controls.email.value}
+                onChangeText={val => this.updateInputState('email', val)}
+                valid={this.state.controls.email.valid}
+                touched={this.state.controls.email.touched}
+                style={styles.input}
+              />
 
-            <View
-              style={
-                this.state.viewMode === 'portrait' ||
-                this.state.authMode === 'login'
-                  ? styles.portraitPasswordContainer
-                  : styles.landscapePasswordContainer
-              }
-            >
               <View
                 style={
                   this.state.viewMode === 'portrait' ||
                   this.state.authMode === 'login'
-                    ? styles.portraitPasswordWrapper
-                    : styles.landscapePasswordWrapper
+                    ? styles.portraitPasswordContainer
+                    : styles.landscapePasswordContainer
                 }
               >
-                <DefaultInput
-                  secureTextEntry
-                  placeholder="Password"
-                  style={styles.input}
-                  value={this.state.controls.password.value}
-                  valid={this.state.controls.password.valid}
-                  touched={this.state.controls.password.touched}
-                  onChangeText={val => this.updateInputState('password', val)}
-                />
+                <View
+                  style={
+                    this.state.viewMode === 'portrait' ||
+                    this.state.authMode === 'login'
+                      ? styles.portraitPasswordWrapper
+                      : styles.landscapePasswordWrapper
+                  }
+                >
+                  <DefaultInput
+                    secureTextEntry
+                    placeholder="Password"
+                    style={styles.input}
+                    value={this.state.controls.password.value}
+                    valid={this.state.controls.password.valid}
+                    touched={this.state.controls.password.touched}
+                    onChangeText={val => this.updateInputState('password', val)}
+                  />
+                </View>
+                {confirmPasswordControl}
               </View>
-              {confirmPasswordControl}
             </View>
-          </View>
+          </TouchableWithoutFeedback>
 
           <DefaultButton
             color="#29aaf4"
@@ -221,7 +231,7 @@ class AuthScreen extends Component {
           >
             Submit
           </DefaultButton>
-        </View>
+        </KeyboardAvoidingView>
       </ImageBackground>
     )
   }
