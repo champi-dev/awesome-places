@@ -17,7 +17,8 @@ const reducer = (state = initialState, action) => {
             image: {
               uri:
                 'https://img1.10bestmedia.com/Images/Photos/352450/GettyImages-913753556_55_660x440.jpg'
-            }
+            },
+            location: action.location
           }
         ]
       }
