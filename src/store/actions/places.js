@@ -29,6 +29,7 @@ export const addPlace = (placeName, location, image) => dispatch => {
     .catch(err => {
       dispatch(uiStopLoading())
       console.log(err)
+      alert('Something went wrong, please try again!')
     })
 }
 
