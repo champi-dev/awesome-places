@@ -1,18 +1,26 @@
 import { SET_PLACES, REMOVE_PLACE } from './actionTypes'
-import { uiStartLoading, uiStopLoading } from './index'
+import { uiStartLoading, uiStopLoading, authGetToken } from './index'
 
 export const addPlace = (placeName, location, image) => dispatch => {
   dispatch(uiStartLoading())
+  let authToken = null
 
-  fetch(
-    'https://us-central1-devsarmico-rncourse.cloudfunctions.net/storeImage',
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        image: image.base64
-      })
-    }
-  )
+  dispatch(authGetToken())
+    .then(token => (authToken = token))
+    .then(() =>
+      fetch(
+        'https://us-central1-devsarmico-rncourse.cloudfunctions.net/storeImage',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            image: image.base64
+          }),
+          headers: {
+            Authorization: `Bearer ${authToken}`
+          }
+        }
+      )
+    )
     .then(res => res.json())
     .then(({ imageUrl }) => {
       const placeData = {
@@ -20,10 +28,14 @@ export const addPlace = (placeName, location, image) => dispatch => {
         image: imageUrl,
         location
       }
-      return fetch('https://devsarmico-rncourse.firebaseio.com/places.json', {
-        method: 'POST',
-        body: JSON.stringify(placeData)
-      })
+
+      return fetch(
+        `https://devsarmico-rncourse.firebaseio.com/places.json?auth=${authToken}`,
+        {
+          method: 'POST',
+          body: JSON.stringify(placeData)
+        }
+      )
     })
     .then(() => dispatch(uiStopLoading()))
     .catch(err => {
@@ -34,7 +46,12 @@ export const addPlace = (placeName, location, image) => dispatch => {
 }
 
 export const getPlaces = () => dispatch => {
-  fetch('https://devsarmico-rncourse.firebaseio.com/places.json')
+  dispatch(authGetToken())
+    .then(token =>
+      fetch(
+        `https://devsarmico-rncourse.firebaseio.com/places.json?auth=${token}`
+      )
+    )
     .then(res => res.json())
     .then(parsedRes => {
       const places = []
@@ -56,10 +73,16 @@ export const getPlaces = () => dispatch => {
 }
 
 export const deletePlace = key => dispatch => {
-  dispatch(removePlace(key))
-  fetch(`https://devsarmico-rncourse.firebaseio.com/places/${key}.json`, {
-    method: 'DELETE'
-  })
+  dispatch(authGetToken())
+    .then(token => {
+      dispatch(removePlace(key))
+      return fetch(
+        `https://devsarmico-rncourse.firebaseio.com/places/${key}.json?auth=${token}`,
+        {
+          method: 'DELETE'
+        }
+      )
+    })
     .then(res => res.json())
     .then(parsedRes => {
       console.log('Done!')
