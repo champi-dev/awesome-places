@@ -10,6 +10,8 @@ import { connect } from 'react-redux'
 
 import PlaceList from '../../components/PlaceList/PlaceList'
 
+import { getPlaces } from '../../store/actions/index'
+
 class FindPlace extends Component {
   static navigatorStyle = {
     navBarButtonColor: 'orange'
@@ -23,6 +25,10 @@ class FindPlace extends Component {
   state = {
     placesLoaded: false,
     removeAnim: new Animated.Value(1)
+  }
+
+  componentDidMount() {
+    this.props.onLoadPlaces()
   }
 
   onNavigatorEvent = event => {
@@ -122,4 +128,8 @@ const mapStateToProps = state => ({
   places: state.placesReducer.places
 })
 
-export default connect(mapStateToProps)(FindPlace)
+const mapDispatchToProps = dispatch => ({
+  onLoadPlaces: () => dispatch(getPlaces())
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(FindPlace)

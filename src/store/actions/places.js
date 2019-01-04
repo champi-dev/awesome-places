@@ -1,4 +1,4 @@
-import { ADD_PLACE, DELETE_PLACE } from './actionTypes'
+import { SET_PLACES } from './actionTypes'
 import { uiStartLoading, uiStopLoading } from './index'
 
 export const addPlace = (placeName, location, image) => dispatch => {
@@ -32,6 +32,33 @@ export const addPlace = (placeName, location, image) => dispatch => {
       alert('Something went wrong, please try again!')
     })
 }
+
+export const getPlaces = () => dispatch => {
+  fetch('https://devsarmico-rncourse.firebaseio.com/places.json')
+    .then(res => res.json())
+    .then(parsedRes => {
+      const places = []
+      for (let key in parsedRes) {
+        places.push({
+          ...parsedRes[key],
+          key,
+          image: {
+            uri: parsedRes[key].image
+          }
+        })
+      }
+      dispatch(setPlaces(places))
+    })
+    .catch(err => {
+      console.log(err)
+      alert('Something went wrong!')
+    })
+}
+
+export const setPlaces = places => ({
+  type: SET_PLACES,
+  places
+})
 
 export const deletePlace = key => ({
   type: DELETE_PLACE,
