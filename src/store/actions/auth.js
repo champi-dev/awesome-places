@@ -1,3 +1,4 @@
+import { AsyncStorage } from 'react-native'
 import { AUTH_SET_TOKEN } from './actionTypes'
 import { uiStartLoading, uiStopLoading } from './index'
 import startMainTabs from '../../screens/MainTabs/startMainTabs'
@@ -28,7 +29,7 @@ export const tryAuth = ({ email, password }, authMode) => dispatch => {
       if (!parsedRes.idToken) {
         alert('Authentication failed, please try again!')
       } else {
-        dispatch(authSetToken(parsedRes.idToken))
+        dispatch(authStoreToken(parsedRes.idToken))
         startMainTabs()
       }
     })
@@ -44,12 +45,29 @@ export const authSetToken = token => ({
   token
 })
 
+export const authStoreToken = token => dispatch => {
+  dispatch(authSetToken(token))
+  AsyncStorage.setItem('rn:auth:token', token)
+}
+
 export const authGetToken = () => (dispatch, getState) =>
   new Promise((resolve, reject) => {
     const token = getState().authReducer.token
     if (!token) {
-      reject()
+      AsyncStorage.getItem('rn:auth:token')
+        .then(tokenFromStorage => {
+          if (!tokenFromStorage) reject()
+          dispatch(authSetToken(tokenFromStorage))
+          resolve(tokenFromStorage)
+        })
+        .catch(err => reject(err))
     } else {
       resolve(token)
     }
   })
+
+export const authAutoSignIn = () => dispatch => {
+  dispatch(authGetToken())
+    .then(token => startMainTabs())
+    .catch(err => console.log('Auth Failed!'))
+}

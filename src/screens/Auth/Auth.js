@@ -18,7 +18,7 @@ import DefaultButton from '../../components/UI/DefaultButton/DefaultButton'
 import backgroundImg from '../../assets/background.png'
 import validate from '../../utils/validate'
 
-import { tryAuth } from '../../store/actions/auth'
+import { tryAuth, authAutoSignIn } from '../../store/actions/index'
 
 const getViewMode = () =>
   Dimensions.get('window').height > 500 ? 'portrait' : 'landscape'
@@ -32,6 +32,10 @@ class AuthScreen extends Component {
 
   componentWillUnmount() {
     Dimensions.removeEventListener('change', this.updateStyles)
+  }
+
+  componentDidMount() {
+    this.props.onAutoSignIn()
   }
 
   state = {
@@ -282,7 +286,8 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  onTryAuth: (authData, authMode) => dispatch(tryAuth(authData, authMode))
+  onTryAuth: (authData, authMode) => dispatch(tryAuth(authData, authMode)),
+  onAutoSignIn: () => dispatch(authAutoSignIn())
 })
 
 export default connect(
