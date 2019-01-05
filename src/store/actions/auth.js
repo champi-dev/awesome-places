@@ -1,7 +1,8 @@
 import { AsyncStorage } from 'react-native'
-import { AUTH_SET_TOKEN } from './actionTypes'
+import { AUTH_SET_TOKEN, AUTH_REMOVE_TOKEN } from './actionTypes'
 import { uiStartLoading, uiStopLoading } from './index'
 import startMainTabs from '../../screens/MainTabs/startMainTabs'
+import App from '../../../App'
 
 const apiKey = 'AIzaSyCZYntJ86tdeVAY9--F6de_DYE3HnIH0aE'
 
@@ -47,24 +48,26 @@ export const tryAuth = ({ email, password }, authMode) => dispatch => {
     })
 }
 
-export const authSetToken = token => ({
-  type: AUTH_SET_TOKEN,
-  token
-})
-
 export const authStoreToken = (token, expiresIn, refreshToken) => dispatch => {
-  dispatch(authSetToken(token))
   const now = new Date()
   const expirationTime = now.getTime() + expiresIn * 1000
+  dispatch(authSetToken(token, expirationTime))
   AsyncStorage.setItem('rn:auth:token', token)
   AsyncStorage.setItem('rn:auth:expirationTime', expirationTime.toString())
   AsyncStorage.setItem('rn:auth:refreshToken', refreshToken)
 }
 
+export const authSetToken = (token, expirationTime) => ({
+  type: AUTH_SET_TOKEN,
+  token,
+  expirationTime
+})
+
 export const authGetToken = () => (dispatch, getState) =>
   new Promise((resolve, reject) => {
     const token = getState().authReducer.token
-    if (!token) {
+    const expTime = getState().authReducer.expirationTime
+    if (!token || new Date(expTime) <= new Date()) {
       let fetchedToken = null
       AsyncStorage.getItem('rn:auth:token')
         .then(tokenFromStorage => {
@@ -131,4 +134,16 @@ export const authAutoSignIn = () => dispatch => {
 export const authClearStorage = () => dispatch => {
   AsyncStorage.removeItem('rn:auth:token')
   AsyncStorage.removeItem('rn:auth:expirationTime')
+  return AsyncStorage.removeItem('rn:auth:refreshToken')
 }
+
+export const authLogout = () => dispatch => {
+  dispatch(authClearStorage()).then(() => {
+    App()
+  })
+  dispatch(authRemoveToken())
+}
+
+export const authRemoveToken = () => ({
+  type: AUTH_REMOVE_TOKEN
+})
