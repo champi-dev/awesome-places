@@ -3,9 +3,10 @@ import { AUTH_SET_TOKEN } from './actionTypes'
 import { uiStartLoading, uiStopLoading } from './index'
 import startMainTabs from '../../screens/MainTabs/startMainTabs'
 
+const apiKey = 'AIzaSyCZYntJ86tdeVAY9--F6de_DYE3HnIH0aE'
+
 export const tryAuth = ({ email, password }, authMode) => dispatch => {
   dispatch(uiStartLoading())
-  const apiKey = 'AIzaSyCZYntJ86tdeVAY9--F6de_DYE3HnIH0aE'
   let url = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${apiKey}`
 
   if (authMode === 'signup') {
@@ -29,7 +30,13 @@ export const tryAuth = ({ email, password }, authMode) => dispatch => {
       if (!parsedRes.idToken) {
         alert('Authentication failed, please try again!')
       } else {
-        dispatch(authStoreToken(parsedRes.idToken))
+        dispatch(
+          authStoreToken(
+            parsedRes.idToken,
+            parsedRes.expiresIn,
+            parsedRes.refreshToken
+          )
+        )
         startMainTabs()
       }
     })
@@ -45,29 +52,83 @@ export const authSetToken = token => ({
   token
 })
 
-export const authStoreToken = token => dispatch => {
+export const authStoreToken = (token, expiresIn, refreshToken) => dispatch => {
   dispatch(authSetToken(token))
+  const now = new Date()
+  const expirationTime = now.getTime() + expiresIn * 1000
   AsyncStorage.setItem('rn:auth:token', token)
+  AsyncStorage.setItem('rn:auth:expirationTime', expirationTime.toString())
+  AsyncStorage.setItem('rn:auth:refreshToken', refreshToken)
 }
 
 export const authGetToken = () => (dispatch, getState) =>
   new Promise((resolve, reject) => {
     const token = getState().authReducer.token
     if (!token) {
+      let fetchedToken = null
       AsyncStorage.getItem('rn:auth:token')
         .then(tokenFromStorage => {
+          fetchedToken = tokenFromStorage
           if (!tokenFromStorage) reject()
-          dispatch(authSetToken(tokenFromStorage))
-          resolve(tokenFromStorage)
+          return AsyncStorage.getItem('rn:auth:expirationTime')
+        })
+        .then(expirationTime => {
+          const parsedExpTime = new Date(parseInt(expirationTime))
+          const now = new Date()
+          if (parsedExpTime > now) {
+            dispatch(authSetToken(fetchedToken))
+            resolve(fetchedToken)
+          } else {
+            reject()
+          }
         })
         .catch(err => reject(err))
     } else {
       resolve(token)
     }
   })
+    .catch(err => {
+      return AsyncStorage.getItem('rn:auth:refreshToken')
+        .then(refreshToken =>
+          fetch(`https://securetoken.googleapis.com/v1/token?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `grant_type=refresh_token&refresh_token=${refreshToken}`
+          })
+        )
+        .then(res => res.json())
+        .then(parsedRes => {
+          if (parsedRes.id_token) {
+            dispatch(
+              authStoreToken(
+                parsedRes.id_token,
+                parsedRes.expires_in,
+                parsedRes.refresh_token
+              )
+            )
+            return parsedRes.id_token
+          } else {
+            dispatch(authClearStorage())
+          }
+        })
+    })
+    .then(token => {
+      if (!token) {
+        throw new Error()
+      } else {
+        return token
+      }
+    })
 
 export const authAutoSignIn = () => dispatch => {
   dispatch(authGetToken())
     .then(token => startMainTabs())
     .catch(err => console.log('Auth Failed!'))
+}
+
+export const authClearStorage = () => dispatch => {
+  AsyncStorage.removeItem('rn:auth:token')
+  AsyncStorage.removeItem('rn:auth:expirationTime')
 }
