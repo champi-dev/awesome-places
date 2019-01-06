@@ -27,11 +27,13 @@ class FindPlace extends Component {
     removeAnim: new Animated.Value(1)
   }
 
-  componentDidMount() {
-    this.props.onLoadPlaces()
-  }
-
   onNavigatorEvent = event => {
+    if (event.type === 'ScreenChangedEvent') {
+      if (event.id === 'willAppear') {
+        this.props.onLoadPlaces()
+      }
+    }
+
     if (event.type === 'NavBarButtonPress') {
       if (event.id === 'sideDrawerToggle') {
         this.props.navigator.toggleDrawer({
@@ -132,4 +134,7 @@ const mapDispatchToProps = dispatch => ({
   onLoadPlaces: () => dispatch(getPlaces())
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(FindPlace)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(FindPlace)

@@ -62,7 +62,8 @@ exports.storeImage = functions.https.onRequest((request, response) => {
                   '/o/' +
                   encodeURIComponent(file.name) +
                   '?alt=media&token=' +
-                  uniqueId
+                  uniqueId,
+                imagePath: '/places/' + uniqueId + '.jpg'
               })
             } else {
               console.log(error)
@@ -73,7 +74,17 @@ exports.storeImage = functions.https.onRequest((request, response) => {
       })
       .catch(error => {
         console.log('Token is invalid')
-        response.status(403).json({error: 'Unauthorized'})
+        response.status(403).json({ error: 'Unauthorized' })
       })
   })
 })
+
+exports.deleteImage = functions.database
+  .ref('/places/{placeID}')
+  .onDelete(snapshot => {
+    const placeData = snapshot.val()
+    const imagePath = placeData.imagePath
+
+    const bucket = gcs.bucket('devsarmico-rncourse.appspot.com')
+    return bucket.file(imagePath).delete()
+  })

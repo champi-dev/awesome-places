@@ -1,5 +1,14 @@
-import { SET_PLACES, REMOVE_PLACE } from './actionTypes'
+import {
+  SET_PLACES,
+  REMOVE_PLACE,
+  PLACE_ADDED,
+  START_ADD_PLACE
+} from './actionTypes'
 import { uiStartLoading, uiStopLoading, authGetToken } from './index'
+
+export const startAddPlace = () => ({
+  type: START_ADD_PLACE
+})
 
 export const addPlace = (placeName, location, image) => dispatch => {
   dispatch(uiStartLoading())
@@ -21,11 +30,15 @@ export const addPlace = (placeName, location, image) => dispatch => {
         }
       )
     )
-    .then(res => res.json())
-    .then(({ imageUrl }) => {
+    .then(res => {
+      if (res.ok) return res.json()
+      else throw new Error()
+    })
+    .then(({ imageUrl, imagePath }) => {
       const placeData = {
         name: placeName,
         image: imageUrl,
+        imagePath,
         location
       }
 
@@ -40,10 +53,15 @@ export const addPlace = (placeName, location, image) => dispatch => {
     .then(() => dispatch(uiStopLoading()))
     .catch(err => {
       dispatch(uiStopLoading())
+      dispatch(placeAdded())
       console.log(err)
       alert('Something went wrong, please try again!')
     })
 }
+
+export const placeAdded = () => ({
+  type: PLACE_ADDED
+})
 
 export const getPlaces = () => dispatch => {
   dispatch(authGetToken())
@@ -52,7 +70,10 @@ export const getPlaces = () => dispatch => {
         `https://devsarmico-rncourse.firebaseio.com/places.json?auth=${token}`
       )
     )
-    .then(res => res.json())
+    .then(res => {
+      if (res.ok) return res.json()
+      else throw new Error()
+    })
     .then(parsedRes => {
       const places = []
       for (let key in parsedRes) {
@@ -83,7 +104,10 @@ export const deletePlace = key => dispatch => {
         }
       )
     })
-    .then(res => res.json())
+    .then(res => {
+      if (res.ok) return res.json()
+      else throw new Error()
+    })
     .then(parsedRes => {
       console.log('Done!')
     })
